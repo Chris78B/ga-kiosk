@@ -11,7 +11,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGE_ARCHIVE="${SCRIPT_DIR}/groupalarm-monitor-5.6.tar.gz"
+PACKAGE_ARCHIVE="${SCRIPT_DIR}/ga-kiosk.tar.gz"
 PAYLOAD_DIR="${SCRIPT_DIR}"
 PAYLOAD_TMP_DIR=""
 SERVICE_USER="groupalarm"

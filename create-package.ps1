@@ -1,8 +1,9 @@
 $ErrorActionPreference = "Stop"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$ArchivePath = Join-Path $ScriptDir "groupalarm-monitor-5.6.tar.gz"
-$ChecksumPath = Join-Path $ScriptDir "groupalarm-monitor-5.6.tar.gz.sha256"
+$ArchiveName = "ga-kiosk.tar.gz"
+$ArchivePath = Join-Path $ScriptDir $ArchiveName
+$ChecksumPath = Join-Path $ScriptDir "$ArchiveName.sha256"
 
 $PackageItems = @(
     "groupalarm_webinterface.py",
@@ -41,7 +42,7 @@ try {
     & tar -czf $ArchivePath @PackageItems
 
     $Hash = Get-FileHash -Algorithm SHA256 -Path $ArchivePath
-    "$($Hash.Hash.ToLower())  groupalarm-monitor-5.6.tar.gz" | Set-Content -Path $ChecksumPath -Encoding ascii
+    "$($Hash.Hash.ToLower())  $ArchiveName" | Set-Content -Path $ChecksumPath -Encoding ascii
 
     Write-Host "Paket erstellt: $ArchivePath"
     Write-Host "Checksumme erstellt: $ChecksumPath"

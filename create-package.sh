@@ -1,11 +1,13 @@
 #!/bin/bash
 #
-# Creates the GroupAlarm Monitor 5.6 runtime package archive.
+# Creates the ga-kiosk runtime package archive (version-agnostic filename,
+# so it can always be fetched as a GitHub "latest release" asset).
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ARCHIVE="${SCRIPT_DIR}/groupalarm-monitor-5.6.tar.gz"
+ARCHIVE_NAME="ga-kiosk.tar.gz"
+ARCHIVE="${SCRIPT_DIR}/${ARCHIVE_NAME}"
 CHECKSUM="${ARCHIVE}.sha256"
 
 PACKAGE_ITEMS=(
@@ -40,8 +42,8 @@ for item in "${PACKAGE_ITEMS[@]}"; do
 done
 
 rm -f "${ARCHIVE}" "${CHECKSUM}"
-tar -czf "${ARCHIVE}" "${PACKAGE_ITEMS[@]}"
-sha256sum "${ARCHIVE}" > "${CHECKSUM}"
+tar -czf "${ARCHIVE_NAME}" "${PACKAGE_ITEMS[@]}"
+sha256sum "${ARCHIVE_NAME}" > "${CHECKSUM}"
 
 echo "Paket erstellt: ${ARCHIVE}"
 echo "Checksumme erstellt: ${CHECKSUM}"
