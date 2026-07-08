@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroupAlarm Monitor - Dashboard</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel: rgba(15, 23, 42, 0.78);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #ff6b57;
+            --accent-dark: #d64541;
+            --ok: #22c55e;
+            --warn: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: "Segoe UI", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top, rgba(255, 107, 87, 0.18), transparent 32%),
+                linear-gradient(160deg, #111827 0%, #0b1220 100%);
+        }
+
+        .container {
+            max-width: 1380px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+        }
+
+        .logout {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            color: var(--text);
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        h1, h2 {
+            margin-top: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+            margin-bottom: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .checkbox input {
+            width: auto;
+            margin: 0;
+        }
+
+        .row,
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 14px;
+            border: 0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+        }
+
+        button.secondary {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        button.warn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .status {
+            display: inline-flex;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .on {
+            background: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+        }
+
+        .off {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+
+        .quality-excellent,
+        .quality-good,
+        .quality-usable {
+            background: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+        }
+
+        .quality-weak {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+        }
+
+        .quality-critical,
+        .quality-unknown {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+
+        .alert {
+            display: none;
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .show {
+            display: block;
+        }
+
+        .success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            color: #86efac;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #fecaca;
+        }
+
+        .logs {
+            max-height: 360px;
+            overflow: auto;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 16px;
+            font-family: "Cascadia Mono", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>GroupAlarm Monitor</h1>
+                <div class="subtitle">Openbox-gefuehrter Chromium-Kiosk mit lokalem Admin-Interface</div>
+            </div>
+            <a class="logout" href="/logout">Logout</a>
+        </header>
+
+        <div id="pageAlert" class="alert"></div>
+
+        <div class="grid">
+            <section class="card">
+                <h2>Kiosk</h2>
+                <div id="kioskBadge" class="status off">Inaktiv</div>
+                <div id="kioskMeta" class="subtitle">Status wird geladen...</div>
+                <div class="buttons" style="margin-top: 18px;">
+                    <button type="button" onclick="kioskAction('start')">Start</button>
+                    <button type="button" class="secondary" onclick="kioskAction('stop')">Stop</button>
+                    <button type="button" class="warn" onclick="kioskAction('restart')">Restart</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>GroupAlarm</h2>
+                <label for="groupalarm_url">Monitor-URL</label>
+                <input id="groupalarm_url" type="text">
+                <label for="groupalarm_token">View-Token</label>
+                <input id="groupalarm_token" type="text">
+                <div class="checkbox">
+                    <input id="dark_theme" type="checkbox">
+                    <label for="dark_theme">Dark Theme aktivieren</label>
+                </div>
+                <button type="button" onclick="saveConfig()">Konfiguration speichern</button>
+            </section>
+
+            <section class="card">
+                <h2>Auto-Update (woechentlich)</h2>
+                <div class="checkbox">
+                    <input id="auto_update_enabled" type="checkbox">
+                    <label for="auto_update_enabled">Automatische Updates aktiv</label>
+                </div>
+                <div class="row">
+                    <div>
+                        <label for="auto_update_day">Wochentag</label>
+                        <select id="auto_update_day">
+                            <option value="Mon">Montag</option>
+                            <option value="Tue">Dienstag</option>
+                            <option value="Wed">Mittwoch</option>
+                            <option value="Thu">Donnerstag</option>
+                            <option value="Fri">Freitag</option>
+                            <option value="Sat">Samstag</option>
+                            <option value="Sun">Sonntag</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="auto_update_time">Uhrzeit</label>
+                        <input id="auto_update_time" type="time">
+                    </div>
+                    <div>
+                        <label for="notify_email">E-Mail fuer Hinweise</label>
+                        <input id="notify_email" type="email">
+                    </div>
+                </div>
+                <div class="checkbox">
+                    <input id="auto_update_reboot" type="checkbox">
+                    <label for="auto_update_reboot">Reboot nach Update erlauben</label>
+                </div>
+                <button type="button" onclick="saveConfig()">Update-Einstellungen speichern</button>
+            </section>
+
+            <section class="card">
+                <h2>Externe Ueberwachung</h2>
+                <div class="checkbox">
+                    <input id="watcher_enabled" type="checkbox">
+                    <label for="watcher_enabled">Watcher-Heartbeat aktiv</label>
+                </div>
+                <label for="watcher_url">Watcher-URL</label>
+                <input id="watcher_url" type="text" placeholder="https://domain.de/ga-mon/watcher.php">
+                <label for="watcher_token">Watcher-Token</label>
+                <input id="watcher_token" type="password">
+                <label for="watcher_monitor_id">Monitor-ID</label>
+                <input id="watcher_monitor_id" type="text">
+                <div class="subtitle" style="margin-bottom: 14px;">Heartbeat-Intervall: 60 Sekunden per systemd Timer</div>
+                <button type="button" onclick="saveConfig()">Watcher speichern</button>
+            </section>
+
+            <section class="card">
+                <h2>Netzwerk</h2>
+                <div id="wifiBadge" class="status quality-unknown">Nicht verfuegbar</div>
+                <div id="wifiMeta" class="subtitle">WLAN-Signal wird geladen...</div>
+                <div class="subtitle" style="margin-top: 14px;">
+                    Zielwert fuer Dauerbetrieb: besser als -65 dBm. Ab etwa -70 dBm ist das WLAN nur noch schwach.
+                </div>
+            </section>
+
+            <section class="card full">
+                <h2>System</h2>
+                <div class="buttons">
+                    <button type="button" class="secondary" onclick="systemAction('update')">Update</button>
+                    <button type="button" class="warn" onclick="systemAction('reboot')">Reboot</button>
+                    <button type="button" class="danger" onclick="systemAction('shutdown')">Shutdown</button>
+                    <button type="button" class="secondary" onclick="systemAction('cancel-shutdown')">Shutdown abbrechen</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Passwort</h2>
+                <label for="old_password">Aktuelles Passwort</label>
+                <input id="old_password" type="password">
+                <label for="new_password">Neues Passwort</label>
+                <input id="new_password" type="password">
+                <label for="new_password_confirm">Neues Passwort wiederholen</label>
+                <input id="new_password_confirm" type="password">
+                <button type="button" onclick="changePassword()">Passwort aendern</button>
+            </section>
+
+            <section class="card">
+                <h2>Logs</h2>
+                <div class="buttons" style="margin-bottom: 14px;">
+                    <button type="button" class="secondary" onclick="loadLogs()">Neu laden</button>
+                    <button type="button" class="danger" onclick="clearLogs()">Leeren</button>
+                </div>
+                <div id="logs" class="logs">Logs werden geladen...</div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        async function api(path, options = {}) {
+            const response = await fetch(path, {
+                headers: { 'Content-Type': 'application/json' },
+                ...options
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || data.message || 'Unbekannter Fehler');
+            }
+            return data;
+        }
+
+        function showAlert(message, type = 'success') {
+            const el = document.getElementById('pageAlert');
+            el.textContent = message;
+            el.className = `alert show ${type}`;
+            window.setTimeout(() => {
+                el.className = 'alert';
+                el.textContent = '';
+            }, 4500);
+        }
+
+        function applyConfig(config) {
+            document.getElementById('groupalarm_url').value = config.groupalarm_url || '';
+            document.getElementById('groupalarm_token').value = config.groupalarm_token || '';
+            document.getElementById('dark_theme').checked = !!config.dark_theme;
+            document.getElementById('auto_update_enabled').checked = !!config.auto_update_enabled;
+            document.getElementById('auto_update_day').value = config.auto_update_day || 'Sun';
+            document.getElementById('auto_update_time').value = config.auto_update_time || '04:00';
+            document.getElementById('auto_update_reboot').checked = !!config.auto_update_reboot;
+            document.getElementById('notify_email').value = config.notify_email || '';
+            document.getElementById('watcher_enabled').checked = !!config.watcher_enabled;
+            document.getElementById('watcher_url').value = config.watcher_url || '';
+            document.getElementById('watcher_token').value = config.watcher_token || '';
+            document.getElementById('watcher_monitor_id').value = config.watcher_monitor_id || 'groupalarm-monitor';
+            if (config.network) {
+                applyNetworkStatus(config.network);
+            }
+        }
+
+        function applyStatus(status) {
+            const badge = document.getElementById('kioskBadge');
+            const meta = document.getElementById('kioskMeta');
+            badge.className = `status ${status.running ? 'on' : 'off'}`;
+            badge.textContent = status.running ? 'Aktiv' : 'Inaktiv';
+            meta.textContent = status.message || '';
+        }
+
+        function applyNetworkStatus(network) {
+            const badge = document.getElementById('wifiBadge');
+            const meta = document.getElementById('wifiMeta');
+            const quality = network.quality || 'unknown';
+            badge.className = `status quality-${quality}`;
+            badge.textContent = network.message || network.label || 'Nicht verfuegbar';
+            const parts = [];
+            if (network.interface) {
+                parts.push(`Schnittstelle: ${network.interface}`);
+            }
+            if (network.signal_dbm !== null && network.signal_dbm !== undefined) {
+                parts.push(`Signal: ${network.signal_dbm} dBm`);
+            }
+            parts.push('Bewertung: ' + (network.label || 'Nicht verfuegbar'));
+            meta.textContent = parts.join(' | ');
+        }
+
+        async function loadConfig() {
+            applyConfig(await api('/api/config'));
+        }
+
+        async function loadKioskStatus() {
+            applyStatus(await api('/api/kiosk/status'));
+        }
+
+        async function loadNetworkStatus() {
+            applyNetworkStatus(await api('/api/network/status'));
+        }
+
+        async function loadLogs() {
+            const data = await api('/api/logs');
+            document.getElementById('logs').textContent = (data.logs || []).join('');
+        }
+
+        async function saveConfig() {
+            try {
+                const data = await api('/api/config/save', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        groupalarm_url: document.getElementById('groupalarm_url').value.trim(),
+                        groupalarm_token: document.getElementById('groupalarm_token').value.trim(),
+                        dark_theme: document.getElementById('dark_theme').checked,
+                        auto_update_enabled: document.getElementById('auto_update_enabled').checked,
+                        auto_update_day: document.getElementById('auto_update_day').value || 'Sun',
+                        auto_update_time: document.getElementById('auto_update_time').value || '04:00',
+                        auto_update_reboot: document.getElementById('auto_update_reboot').checked,
+                        notify_email: document.getElementById('notify_email').value.trim(),
+                        watcher_enabled: document.getElementById('watcher_enabled').checked,
+                        watcher_url: document.getElementById('watcher_url').value.trim(),
+                        watcher_token: document.getElementById('watcher_token').value.trim(),
+                        watcher_monitor_id: document.getElementById('watcher_monitor_id').value.trim() || 'groupalarm-monitor'
+                    })
+                });
+                showAlert(data.message || 'Konfiguration gespeichert');
+                await loadKioskStatus();
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        async function kioskAction(action) {
+            try {
+                const data = await api(`/api/kiosk/${action}`, { method: 'POST' });
+                showAlert(data.message || action);
+                await loadKioskStatus();
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        async function systemAction(action) {
+            if (!window.confirm('Aktion wirklich ausfuehren?')) {
+                return;
+            }
+            try {
+                const data = await api(`/api/system/${action}`, { method: 'POST' });
+                showAlert(data.message || action);
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        async function changePassword() {
+            const oldPassword = document.getElementById('old_password').value;
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('new_password_confirm').value;
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                showAlert('Bitte alle Passwortfelder ausfuellen.', 'error');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showAlert('Die neuen Passwoerter stimmen nicht ueberein.', 'error');
+                return;
+            }
+
+            try {
+                const data = await api('/api/password/change', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        old_password: oldPassword,
+                        new_password: newPassword
+                    })
+                });
+                showAlert(data.message || 'Passwort geaendert');
+                document.getElementById('old_password').value = '';
+                document.getElementById('new_password').value = '';
+                document.getElementById('new_password_confirm').value = '';
+                window.setTimeout(() => {
+                    window.location.href = '/logout';
+                }, 1500);
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        async function clearLogs() {
+            if (!window.confirm('Logs wirklich loeschen?')) {
+                return;
+            }
+            try {
+                await api('/api/logs/clear', { method: 'POST' });
+                showAlert('Logs geloescht');
+                await loadLogs();
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        Promise.all([loadConfig(), loadKioskStatus(), loadNetworkStatus(), loadLogs()]).catch(error => showAlert(error.message, 'error'));
+        window.setInterval(loadKioskStatus, 5000);
+        window.setInterval(loadNetworkStatus, 15000);
+        window.setInterval(loadLogs, 15000);
+    </script>
+</body>
+</html>

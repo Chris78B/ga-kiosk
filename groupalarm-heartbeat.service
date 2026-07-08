@@ -1,0 +1,19 @@
+[Unit]
+Description=GroupAlarm Monitor External Watcher Heartbeat v5.6
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=groupalarm
+Group=groupalarm
+Environment="HOME=/home/groupalarm"
+WorkingDirectory=/usr/local/bin
+ExecStart=/usr/local/bin/groupalarm-heartbeat.sh
+StandardOutput=journal
+StandardError=journal
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/groupalarm/.groupalarm-monitor

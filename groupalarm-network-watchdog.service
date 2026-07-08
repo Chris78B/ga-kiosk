@@ -1,0 +1,25 @@
+[Unit]
+Description=GroupAlarm Monitor Network Watchdog v5.6
+After=network-online.target NetworkManager.service groupalarm-webinterface.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=groupalarm
+Group=groupalarm
+Environment="HOME=/home/groupalarm"
+# "auto" lets the script detect wlan0 / wlpXsY itself. Pin a name here if needed.
+Environment="GROUPALARM_NETWORK_INTERFACE=auto"
+WorkingDirectory=/usr/local/bin
+ExecStart=/usr/local/bin/groupalarm-network-watchdog.sh
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+# NOTE: no NoNewPrivileges / ProtectSystem=strict here. The watchdog must use
+# sudo (nmcli, ip, dhclient, systemctl) to heal the network; those sandbox
+# options silently block privilege escalation and filesystem writes, which is
+# why WLAN recovery never worked in v5.5.
+
+[Install]
+WantedBy=multi-user.target

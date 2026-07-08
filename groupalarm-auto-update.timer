@@ -1,0 +1,16 @@
+[Unit]
+Description=GroupAlarm Monitor Weekly Auto-Update Timer v5.6
+Documentation=Weekly system update. Schedule is regenerated from config.json via groupalarm-apply-update-schedule.sh
+
+[Timer]
+# Default schedule: every Sunday 04:00. Overridden by the drop-in that
+# groupalarm-apply-update-schedule.sh writes from config.json (auto_update_day/auto_update_time).
+OnCalendar=Sun *-*-* 04:00
+# Spread load when several monitors share one uplink.
+RandomizedDelaySec=1800
+# Catch up a missed run (device was switched off) on the next boot.
+Persistent=true
+Unit=groupalarm-auto-update.service
+
+[Install]
+WantedBy=timers.target

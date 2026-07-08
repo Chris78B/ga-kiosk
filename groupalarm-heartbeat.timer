@@ -1,0 +1,12 @@
+[Unit]
+Description=Run GroupAlarm Monitor External Watcher Heartbeat every minute
+
+[Timer]
+OnBootSec=90
+OnUnitActiveSec=60
+AccuracySec=10
+Persistent=true
+Unit=groupalarm-heartbeat.service
+
+[Install]
+WantedBy=timers.target

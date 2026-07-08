@@ -1,0 +1,18 @@
+[Unit]
+Description=GroupAlarm Monitor Web Interface v5.6
+After=network.target
+
+[Service]
+Type=simple
+User=groupalarm
+Group=groupalarm
+WorkingDirectory=/usr/local/bin
+Environment="HOME=/home/groupalarm"
+ExecStart=/usr/bin/python3 /usr/local/bin/groupalarm-webinterface.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

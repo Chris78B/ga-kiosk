@@ -1,0 +1,54 @@
+#!/bin/bash
+# GroupAlarm Monitor Openbox autostart v5.6
+
+LOG_DIR="${HOME}/.groupalarm-monitor"
+LOG_FILE="${LOG_DIR}/openbox-autostart.log"
+KIOSK_SCRIPT="/usr/local/bin/groupalarm-kiosk.sh"
+
+mkdir -p "${LOG_DIR}"
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "${LOG_FILE}"
+}
+
+log "Openbox-Autostart gestartet"
+
+xset s off >/dev/null 2>&1 || true
+xset -dpms >/dev/null 2>&1 || true
+xset s noblank >/dev/null 2>&1 || true
+
+if command -v xbindkeys >/dev/null 2>&1; then
+    mkdir -p "${HOME}/.xbindkeysrc.d"
+    cat > "${HOME}/.xbindkeysrc.d/kiosk" <<'EOF'
+"xterm"
+    ctrl + alt + t
+
+"wmctrl -c :ACTIVE:"
+    alt + F4
+
+"echo 'Alt+Tab blockiert'"
+    alt + Tab
+
+"echo 'F11 blockiert'"
+    F11
+
+"echo 'Super blockiert'"
+    Super_L
+EOF
+    pkill -x xbindkeys >/dev/null 2>&1 || true
+    xbindkeys >/dev/null 2>&1 &
+fi
+
+(
+    for attempt in 1 2 3 4 5; do
+        log "Kiosk-Startversuch ${attempt}/5"
+        if "${KIOSK_SCRIPT}" start >> "${LOG_FILE}" 2>&1; then
+            log "Kiosk-Start erfolgreich"
+            exit 0
+        fi
+        log "Kiosk-Startversuch ${attempt}/5 fehlgeschlagen"
+        sleep 10
+    done
+
+    log "Kiosk konnte nach 5 Versuchen nicht gestartet werden"
+) &

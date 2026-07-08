@@ -1,0 +1,17 @@
+[Unit]
+Description=GroupAlarm Monitor Legacy Compatibility Stub v5.6
+Documentation=Browser control moved to Openbox autostart + /usr/local/bin/groupalarm-kiosk.sh
+After=display-manager.service
+
+[Service]
+Type=oneshot
+User=groupalarm
+Group=groupalarm
+Environment="HOME=/home/groupalarm"
+ExecStart=/bin/sh -c 'echo "groupalarm-monitor.service is deprecated in v5.6; Chromium is managed by Openbox and groupalarm-kiosk.sh."'
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+# Intentionally no [Install] section.
+# In v5.6 this unit must not be enabled as the primary browser controller.
