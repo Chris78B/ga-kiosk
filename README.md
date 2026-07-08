@@ -59,6 +59,12 @@ Passworteingabe):
 sudo /usr/local/bin/groupalarm-wifi-setup.sh '<SSID>' '<WLAN-Passwort>'
 ```
 
+## Hardware & Betrieb
+
+Zielhardware, kritische BIOS-Einstellungen für unbeaufsichtigten 24/7-Betrieb, Empfehlung zur
+festen IP-Adresse, WLAN-Signalstärke-Referenz, externer Watcher und die Begründung für die
+Openbox-zentrierte Architektur: siehe [HARDWARE-UND-BETRIEB.md](HARDWARE-UND-BETRIEB.md).
+
 ## Ein neues Release veröffentlichen (Entwickler-Workflow)
 
 1. Code ändern, testen.
